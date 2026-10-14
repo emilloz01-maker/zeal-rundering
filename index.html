@@ -21,14 +21,23 @@
     <button class="big secondary" id="btnHistory">Tidligere runderinger</button>
   </section>
 
+  <section id="pick" class="screen">
+    <p class="progress">Ny rundering</p>
+    <h2>Hvilken etage tager du?</h2>
+    <p class="hint" id="pickHint">Vælg en etage. Du kan gemme, så snart den er færdig.</p>
+    <div class="list" id="pickList"></div>
+    <button class="big primary" id="btnPickSave" hidden>Gem og send</button>
+    <button class="link" id="btnPickCancel">Afbryd rundering</button>
+  </section>
+
   <section id="floor" class="screen">
     <p class="progress" id="floorProg"></p>
-    <div class="bar"><i id="floorBar"></i></div>
     <h2 id="floorTitle"></h2>
     <p class="hint" id="floorHint"></p>
     <div id="slots" class="list"></div>
-    <div class="row2"><button class="big secondary" id="btnPrev">‹ Forrige</button><button class="big primary" id="btnNext">Næste etage ›</button></div>
-    <button class="link" id="btnCancel">Afbryd rundering</button>
+    <button class="big primary" id="btnNext">Gem og send</button>
+    <button class="big secondary" id="btnMore">Tag en etage mere</button>
+    <button class="link" id="btnBackPick">Tilbage til etager</button>
   </section>
 
   <section id="sum" class="screen">

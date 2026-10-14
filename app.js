@@ -61,13 +61,26 @@ function downscale(file){
 }
 function startRound(){
   state.floors = settings.floors.map(name => ({ name, photos: Array.from({ length: settings.n }, () => ({ photo: null, url: '', note: '' })) }));
-  state.cur = 0; renderFloor(); show('floor');
+  state.cur = 0; renderPick();
 }
 const floorDone = f => f.photos.every(p => p.photo);
+const doneFloors = () => state.floors.filter(floorDone);
+function renderPick(){
+  const l = $('pickList'); l.innerHTML = '';
+  state.floors.forEach((f, i) => {
+    const got = f.photos.filter(p => p.photo).length, n = f.photos.length;
+    const b = document.createElement('button');
+    b.innerHTML = `<span>${esc(f.name)}<small>${got === n ? 'Færdig ✓' : got ? `${got} af ${n} billeder` : `${n} billeder`}</small></span><span aria-hidden="true">${got === n ? '✓' : '›'}</span>`;
+    b.onclick = () => { state.cur = i; renderFloor(); show('floor'); }; l.appendChild(b);
+  });
+  const d = doneFloors().length;
+  $('btnPickSave').hidden = !d; $('btnPickSave').textContent = `Gem og send (${d} ${d === 1 ? 'etage' : 'etager'})`;
+  $('pickHint').textContent = d ? 'Vælg en etage mere, eller gem og send det, du har.' : 'Vælg en etage. Du kan gemme, så snart den er færdig.';
+  show('pick');
+}
 function renderFloor(){
-  const F = state.floors.length, f = state.floors[state.cur], n = f.photos.length;
-  $('floorProg').textContent = `Etage ${state.cur + 1} af ${F}`;
-  $('floorBar').style.width = `${(state.cur / F) * 100}%`;
+  const f = state.floors[state.cur], n = f.photos.length;
+  $('floorProg').textContent = 'Etage';
   $('floorTitle').textContent = f.name;
   const got = f.photos.filter(p => p.photo).length;
   const box = $('slots'); box.innerHTML = '';
@@ -84,19 +97,16 @@ function renderFloor(){
     };
     box.appendChild(s);
   });
-  const last = state.cur === F - 1, ok = got === n;
-  $('floorHint').textContent = ok ? `Alle ${n} billeder er taget.` : `Tag ${n} billeder (${got} af ${n} taget) for at gå videre.`;
-  $('btnPrev').disabled = state.cur === 0;
-  $('btnNext').disabled = !ok;
-  $('btnNext').textContent = last ? 'Se overblik ›' : 'Næste etage ›';
+  const ok = got === n;
+  $('floorHint').textContent = ok ? `Alle ${n} billeder er taget. Gem nu, eller tag en etage mere.` : `Tag ${n} billeder (${got} af ${n} taget), så kan du gemme.`;
+  $('btnNext').disabled = !ok; $('btnMore').disabled = !ok;
 }
-$('btnPrev').onclick = () => { if (state.cur > 0) { state.cur--; renderFloor(); } };
-$('btnNext').onclick = () => {
-  if (!floorDone(state.floors[state.cur])) return;
-  if (state.cur < state.floors.length - 1) { state.cur++; renderFloor(); } else summary();
-};
-$('btnCancel').onclick = () => { if (confirm('Afbryd runderingen? Billederne bliver ikke gemt.')) show('start'); };
-$('btnEdit').onclick = () => { state.cur = 0; renderFloor(); show('floor'); };
+$('btnNext').onclick = () => { if (doneFloors().length) summary(); };
+$('btnMore').onclick = renderPick;
+$('btnBackPick').onclick = renderPick;
+$('btnPickSave').onclick = () => { if (doneFloors().length) summary(); };
+$('btnPickCancel').onclick = () => { if (!doneFloors().length || confirm('Afbryd runderingen? Billederne bliver ikke gemt.')) show('start'); };
+$('btnEdit').onclick = renderPick;
 
 function thumbs(el, floors, urlOf){
   el.innerHTML = '';
@@ -117,10 +127,11 @@ const count = floors => floors.reduce((a, f) => a + f.photos.length, 0);
 function summary(){
   state.time = new Date();
   $('sumTime').textContent = fmtTime(state.time);
-  $('sumFloors').textContent = state.floors.map(f => f.name).join(', ');
-  $('sumCount').textContent = count(state.floors);
+  const df = doneFloors();
+  $('sumFloors').textContent = df.map(f => f.name).join(', ');
+  $('sumCount').textContent = count(df);
   $('initials').value = localStorage.getItem('zeal-initials') || '';
-  thumbs($('sumThumbs'), state.floors, (fi, i) => state.floors[fi].photos[i].url);
+  thumbs($('sumThumbs'), df, (fi, i) => df[fi].photos[i].url);
   show('sum');
 }
 
@@ -136,9 +147,9 @@ function safe(s){ return s.replace(/æ/g,'ae').replace(/ø/g,'oe').replace(/å/g
 const fileName = (c, f, i) => `Zeal-risiko-zone_${safe(f.name) || 'etage'}_${i+1}_${stamp(new Date(c.ts))}.jpg`;
 function allFiles(c){ const out = []; c.floors.forEach(f => f.photos.forEach((p, i) => out.push({ name: fileName(c, f, i), blob: p.photo }))); return out; }
 function mailParts(c){
-  const subject = `Zeal-rundering ${fmtTime(new Date(c.ts))}`;
+  const subject = `Zeal-rundering ${c.floors.map(f => f.name).join(', ')} – ${fmtTime(new Date(c.ts))}`;
   const lines = c.floors.map(f => `${f.name}:\n` + f.photos.map((p, i) => `  ${TITLE} ${i+1}${p.note ? ' – ' + p.note : ''}`).join('\n'));
-  const body = `Zeal-rundering\n\nTidspunkt: ${fmtTime(new Date(c.ts))}\nInitialer: ${c.initials || '–'}\nEtager: ${c.floors.length}\nBilleder: ${count(c.floors)} vedhæftet\n\n${lines.join('\n\n')}\n`;
+  const body = `Zeal-rundering\n\nTidspunkt: ${fmtTime(new Date(c.ts))}\nInitialer: ${c.initials || '–'}\nEtager: ${c.floors.map(f => f.name).join(', ')}\nBilleder: ${count(c.floors)} vedhæftet\n\n${lines.join('\n\n')}\n`;
   return { subject, body };
 }
 function b64utf8(s){ return btoa(unescape(encodeURIComponent(s))); }
@@ -175,7 +186,7 @@ async function send(c){
 }
 $('btnSave').onclick = async () => {
   const initials = $('initials').value.trim().toUpperCase(); localStorage.setItem('zeal-initials', initials);
-  const c = { id: Date.now(), ts: state.time.getTime(), initials, floors: state.floors.map(f => ({ name: f.name, photos: f.photos.map(p => ({ photo: p.photo, note: p.note.trim() })) })) };
+  const c = { id: Date.now(), ts: state.time.getTime(), initials, floors: doneFloors().map(f => ({ name: f.name, photos: f.photos.map(p => ({ photo: p.photo, note: p.note.trim() })) })) };
   $('btnSave').disabled = true;
   try { await putR(c); } catch { alert('Runderingen kunne ikke gemmes på telefonen, men sendes alligevel.'); }
   await send(c); $('btnSave').disabled = false;
@@ -190,7 +201,7 @@ async function renderHistory(){
   all.sort((a, b) => b.ts - a.ts); $('histEmpty').hidden = all.length > 0;
   for (const c of all) {
     const b = document.createElement('button');
-    b.innerHTML = `<span>${fmtTime(new Date(c.ts))}<small>${c.floors.length} etager · ${count(c.floors)} billeder${c.initials ? ' · ' + esc(c.initials) : ''}</small></span><span aria-hidden="true">›</span>`;
+    b.innerHTML = `<span>${fmtTime(new Date(c.ts))}<small>${esc(c.floors.map(f => f.name).join(', '))} · ${count(c.floors)} billeder${c.initials ? ' · ' + esc(c.initials) : ''}</small></span><span aria-hidden="true">›</span>`;
     b.onclick = () => openDetail(c); list.appendChild(b);
   }
   show('history');
