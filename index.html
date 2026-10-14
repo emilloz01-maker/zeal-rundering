@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zeal-rundering</title>
+<meta name="theme-color" content="#1f6f5c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Zeal-rundering">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main id="app">
+  <section id="start" class="screen active">
+    <div class="topbar"><h1>Zeal-rundering</h1><button class="gear" id="btnSettings" aria-label="Indstillinger">⚙</button></div>
+    <p class="lead">Gå alle etager igennem, og tag billeder af Zeal-risiko zoner.</p>
+    <button class="big primary" id="btnNew">Ny rundering</button>
+    <button class="big secondary" id="btnHistory">Tidligere runderinger</button>
+  </section>
+
+  <section id="floor" class="screen">
+    <p class="progress" id="floorProg"></p>
+    <div class="bar"><i id="floorBar"></i></div>
+    <h2 id="floorTitle"></h2>
+    <p class="hint" id="floorHint"></p>
+    <div id="slots" class="list"></div>
+    <div class="row2"><button class="big secondary" id="btnPrev">‹ Forrige</button><button class="big primary" id="btnNext">Næste etage ›</button></div>
+    <button class="link" id="btnCancel">Afbryd rundering</button>
+  </section>
+
+  <section id="sum" class="screen">
+    <p class="progress">Overblik</p>
+    <h2>Er det korrekt?</h2>
+    <dl class="summary">
+      <dt>Tidspunkt</dt><dd id="sumTime"></dd>
+      <dt>Etager</dt><dd id="sumFloors"></dd>
+      <dt>Billeder</dt><dd id="sumCount"></dd>
+    </dl>
+    <label class="note" for="initials">Initialer (valgfrit)</label>
+    <input id="initials" class="txt" maxlength="8" autocomplete="off" placeholder="Fx EMLL">
+    <div id="sumThumbs"></div>
+    <p class="note">Sendes til EMLL@novonesis.com</p>
+    <button class="big primary" id="btnSave">Ja, gem og send</button>
+    <button class="big secondary" id="btnEdit">Ret noget</button>
+  </section>
+
+  <section id="done" class="screen">
+    <div class="check" aria-hidden="true">✓</div>
+    <h2>Runderingen er gemt</h2>
+    <p class="lead" id="doneMsg"></p>
+    <a id="mailtoLink" class="big secondary" hidden>Åbn mail igen</a>
+    <button class="big primary" id="btnHome">Til forsiden</button>
+  </section>
+
+  <section id="history" class="screen">
+    <h2>Tidligere runderinger</h2>
+    <div class="list" id="histList"></div>
+    <p class="note" id="histEmpty" hidden>Der er ingen gemte runderinger endnu.</p>
+    <p class="note">Runderingerne gemmes kun på denne telefon.</p>
+    <button class="link" data-back="start">Tilbage</button>
+  </section>
+
+  <section id="detail" class="screen">
+    <h2>Rundering</h2>
+    <dl class="summary">
+      <dt>Tidspunkt</dt><dd id="detTime"></dd>
+      <dt>Initialer</dt><dd id="detInit"></dd>
+      <dt>Billeder</dt><dd id="detCount"></dd>
+    </dl>
+    <div id="detThumbs"></div>
+    <button class="big primary" id="btnResend">Send igen</button>
+    <button class="link danger" id="btnDelete">Slet runderingen</button>
+    <button class="link" data-back="history">Tilbage</button>
+  </section>
+
+  <section id="settings" class="screen">
+    <h2>Indstillinger</h2>
+    <div class="setcard">
+      <span class="note">Antal billeder pr. etage</span>
+      <div class="stepper"><button id="pMinus" aria-label="Færre billeder">−</button><output id="pOut">3</output><button id="pPlus" aria-label="Flere billeder">+</button></div>
+    </div>
+    <div class="setcard">
+      <span class="note">Etager (i rækkefølge)</span>
+      <p class="hint">Listen kan tilpasses: omdøb, flyt med ↑↓, slet med ✕ eller tilføj nye.</p>
+      <div id="floorList"></div>
+      <button class="big secondary" id="btnAddFloor">+ Tilføj etage</button>
+    </div>
+    <button class="big primary" id="btnSetDone">Gem</button>
+    <button class="link" id="btnSetReset">Nulstil til standard</button>
+    <button class="link" data-back="start">Annullér</button>
+  </section>
+
+  <div id="viewer" hidden><img id="viewImg" alt=""><p id="viewCap"></p><button class="big secondary" id="viewClose">Luk</button></div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
