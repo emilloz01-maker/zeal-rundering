@@ -78,3 +78,4 @@ textarea:focus,#chatInput:focus{outline:none;border-color:#1f6f5c}
 .bar{height:8px;background:#dde6e2;border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:#1f6f5c}
 .hint{font-size:.9rem;color:#4a5a55;margin:0}
 .thumbs{align-items:start}
+[hidden]{display:none!important}

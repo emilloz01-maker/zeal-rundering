@@ -40,7 +40,7 @@ $('btnAddFloor').onclick = () => { draft.floors.push(''); renderSettings(); cons
 $('btnSetDone').onclick = () => {
   const floors = draft.floors.map(f => f.trim()).filter(Boolean);
   settings = { n: clamp(draft.n), floors: floors.length ? floors : DEF_FLOORS.slice() };
-  localStorage.setItem('zeal-settings', JSON.stringify(settings)); show('start');
+  localStorage.setItem('zeal-settings', JSON.stringify(settings)); startRound();
 };
 $('btnSetReset').onclick = () => { draft = { n: DEF_N, floors: DEF_FLOORS.slice() }; renderSettings(); };
 
@@ -74,8 +74,9 @@ function renderPick(){
     b.onclick = () => { state.cur = i; renderFloor(); show('floor'); }; l.appendChild(b);
   });
   const d = doneFloors().length;
-  $('btnPickSave').hidden = !d; $('btnPickSave').textContent = `Gem og send (${d} ${d === 1 ? 'etage' : 'etager'})`;
-  $('pickHint').textContent = d ? 'Vælg en etage mere, eller gem og send det, du har.' : 'Vælg en etage. Du kan gemme, så snart den er færdig.';
+  $('btnPickSave').hidden = !d; $('btnPickSave').textContent = `Gem og send (${d} ${d === 1 ? 'sal' : 'sale'})`;
+  $('pickHint').textContent = d ? 'Vælg en sal mere, eller gem og send det, du har.' : 'Zeal-rundering · Vælg salen, du tager billeder på.';
+  $('btnPickCancel').hidden = !state.floors.some(f => f.photos.some(p => p.photo));
   show('pick');
 }
 function renderFloor(){
@@ -105,7 +106,7 @@ $('btnNext').onclick = () => { if (doneFloors().length) summary(); };
 $('btnMore').onclick = renderPick;
 $('btnBackPick').onclick = renderPick;
 $('btnPickSave').onclick = () => { if (doneFloors().length) summary(); };
-$('btnPickCancel').onclick = () => { if (!doneFloors().length || confirm('Afbryd runderingen? Billederne bliver ikke gemt.')) show('start'); };
+$('btnPickCancel').onclick = () => { if (confirm('Start forfra? Billeder, der ikke er gemt, slettes.')) startRound(); };
 $('btnEdit').onclick = renderPick;
 
 function thumbs(el, floors, urlOf){
@@ -191,7 +192,7 @@ $('btnSave').onclick = async () => {
   try { await putR(c); } catch { alert('Runderingen kunne ikke gemmes på telefonen, men sendes alligevel.'); }
   await send(c); $('btnSave').disabled = false;
 };
-$('btnHome').onclick = () => show('start');
+$('btnHome').onclick = startRound;
 
 // ---------- Historik ----------
 let urls = [];
@@ -216,6 +217,6 @@ function openDetail(c){
   show('detail');
 }
 $('btnHistory').onclick = renderHistory;
-$('btnNew').onclick = startRound;
-document.querySelectorAll('[data-back]').forEach(b => b.onclick = () => { if (b.dataset.back === 'history') renderHistory(); else show(b.dataset.back); });
+document.querySelectorAll('[data-back]').forEach(b => b.onclick = () => { if (b.dataset.back === 'history') renderHistory(); else if (b.dataset.back === 'pick') renderPick(); else show(b.dataset.back); });
+startRound();
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));

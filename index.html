@@ -14,20 +14,13 @@
 </head>
 <body>
 <main id="app">
-  <section id="start" class="screen active">
-    <div class="topbar"><h1>Zeal-rundering</h1><button class="gear" id="btnSettings" aria-label="Indstillinger">⚙</button></div>
-    <p class="lead">Gå alle etager igennem, og tag billeder af Zeal-risiko zoner.</p>
-    <button class="big primary" id="btnNew">Ny rundering</button>
-    <button class="big secondary" id="btnHistory">Tidligere runderinger</button>
-  </section>
-
-  <section id="pick" class="screen">
-    <p class="progress">Ny rundering</p>
-    <h2>Hvilken etage tager du?</h2>
-    <p class="hint" id="pickHint">Vælg en etage. Du kan gemme, så snart den er færdig.</p>
+  <section id="pick" class="screen active">
+    <div class="topbar"><h1>Vælg sal</h1><button class="gear" id="btnSettings" aria-label="Indstillinger">⚙</button></div>
+    <p class="hint" id="pickHint">Zeal-rundering · Vælg salen, du tager billeder på.</p>
     <div class="list" id="pickList"></div>
     <button class="big primary" id="btnPickSave" hidden>Gem og send</button>
-    <button class="link" id="btnPickCancel">Afbryd rundering</button>
+    <button class="link" id="btnHistory">Tidligere runderinger</button>
+    <button class="link" id="btnPickCancel" hidden>Start forfra</button>
   </section>
 
   <section id="floor" class="screen">
@@ -69,7 +62,7 @@
     <div class="list" id="histList"></div>
     <p class="note" id="histEmpty" hidden>Der er ingen gemte runderinger endnu.</p>
     <p class="note">Runderingerne gemmes kun på denne telefon.</p>
-    <button class="link" data-back="start">Tilbage</button>
+    <button class="link" data-back="pick">Tilbage</button>
   </section>
 
   <section id="detail" class="screen">
@@ -99,7 +92,7 @@
     </div>
     <button class="big primary" id="btnSetDone">Gem</button>
     <button class="link" id="btnSetReset">Nulstil til standard</button>
-    <button class="link" data-back="start">Annullér</button>
+    <button class="link" data-back="pick">Annullér</button>
   </section>
 
   <div id="viewer" hidden><img id="viewImg" alt=""><p id="viewCap"></p><button class="big secondary" id="viewClose">Luk</button></div>
